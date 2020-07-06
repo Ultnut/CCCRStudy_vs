@@ -1,0 +1,134 @@
+soyoung.lim2009@gmail.com
+
+dhclient 
+
+/etc/login.defs
+
+
+setuid : 실행하는 동안 파일의 소유자가 될 수 있다?
+setgid : 살행하는 동안 소유그룹에 관한 권한을 가질수있다,'
+mask 란 ? :현재 유저의 권한과 ACL를 비교 and 연산을 통해 실제 부여되는 권한을 나타낸다. 
+
+하위를 포함해서 라는 키워드 : 재귀적 옵션 -R 넣어주기.
+
+#date +%{m,y,Y,H,M) 날짜에서 원하는 분,시,일 만 출력
+
+
+------------------------------------
+
+4. 디스크 관리
+
+장치(스토리지HW) 추가
+-> 장치인식 -> 파티셔닝 -> 파일시스템 생성 -> 마운트
+
+
+1) MRB 파티션
+	- 주 파티션은 4개
+	- 최대 2TB까지 표현가능
+	-> 각 섹터의 주소를 4Byte로 저장하기 떄문에..
+2) GPT 파티션
+	- MRB 방식의 제약을 극복하기 위해 설계됨
+	- 주 파티션 128개
+	- 섹터주소를 64bit
+
+- 장치를 추가하기 위해 수동적으로 스캔하기 위해 조회
+#ls -l /sys/class/scsi_host/
+
+
+디스크 연결 인터페이스 방식 읽어보자 
+EX) SATA, SCSI ..
+
+- 파티셔닝
+fdisk는 MRB도 되고 GPT도 된당.. 대화형으로 할떄 (옛날엔 안됫음)
+근데 안정성이 떨어질수도 있어서 GPT 방식을 할떄 gdisk를 써야되긴 할수도 있쑴
+
+- 실습1. MDR 방식
+
+가상머신에 SATA 8G 2개 추가
+/dev/sdb : MDR
+/dev/sdc : GPT
+
+-MBR 방식 파티션 추가 순서
+
+단위 ;? 섹터
+
+MBR -> n > primary/extended -> 파티션번호1-4 -> 시작섹터 -> 마지막 섹터
+	두번쨰 프라이머리키 생성시 마지막섹터설정시 +를 붙여줘야댐?
+	용량 단위를 사용할떄 ex) +1G
+	파티션 크기를 결정하는 3가지 방법 사용해보장
+
+4번쨰는 extended 이후에 logical 타입이다.
+
+실습 -> extend : 확장 파티션 추가해서 타입 변경시키기 
+
+
+MDR방식의 DISK 타입은 DOS
+
+
+- 실습2. GPT 방식
+
+command : g 입력시 디스크 타입이 gpt로 변경됨
+
+- 살습3. parted - mbr /dev/sdc
+	Parttion Table : gpt
+		print devices 확인-> select 장치 선택 -> mklabel(파티션테이블방식 선택) -> mkpart 파티셔닝(자동저장) -> print 확인
+
+	- unit -> GB -> print 용량단위를 변경해서 확인가능 
+
+- 실습4. parted - gpt /dev/sdb
+# parted -s /dev/sdb mklabel msdos
+# parted -s /dev/sdb mkpart primary/extendedd 0% 1GB 
+# parted -s /dev/sdb mkpart primary 1GB 2048MG
+
+
+
+- 3. 파일시스템 생성
+	mkfs -t 파일시스템종류 파티션 번호
+	mkfs -t ext4 /dev/sdb1 
+
+lsblk -f : 파일시스템 . UUID 확인
+
+/etc/fstab 무엇일꼬~
+
+mount | grep mnt 마운트 확인 
+
+vi 꿀팁
+ctrl+z 최소화
+# jobs 현재 작업중인 목록 표시
+# fg 작업번호 작업번호 작업
+
+mkfs.xfs -f /dev/sdc1 다시 포맷
+
+
+-----------------------------------------
+
+1. 디스크 파티션
+
+- 물리적인 디스크는 파티션이라는 단위로 나누어짐
+- 하나의 디스크를 나누어 사용하면 여러개의 디스크가 있는것처럼 사용
+- 실제로는 한개의 물리적 디스크를 파티션으로 나누어 사용하는 구조 
+- 각 파티션은 개별적으로 관리 ex) 각각의 파티션에 운영체제를 나누어 설치가능
+
+2. MRB 파티션, GPT 파티션 특징과 차이점
+
+3. 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

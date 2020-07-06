@@ -1,0 +1,185 @@
+1. 유저 생성
+
+UID : 사용자 식별번호
+GID : 그룹 식별번호 
+슈퍼유저의 식별번호는 0 이다.
+
+usermod -aG 
+
+
+ls -AL /etc/skel/
+= sudo ls -al ~user01
+
+----------------
+
+/etc/login.defs
+
+UPG skima = User Private Group ( user name = group name ) 
+
+user change : su
+	su user03 
+	su -user03
+차이점 알기!
+-> 사용자의 환경으로 쉘 실행
+ex) su - admin 으로 사용자 변경시 admin의 홈디렉토리에 있음
+
+------------
+
+#echo $PATH
+
+--------------
+
+who 로그인한 사용자 정보를 보여줌
+whomi 사용자명을 조회하는 명령어
+who am  i 
+-----------------------------
+
+2.고급 권한 관리 
+
+ps -aux | grep passwd
+
+확장권한이란?
+: 기본권한인 rwx를 이외의 기능을 사용할 수 있도록 확장된 권한
+	setUID(4000) : 실행을 위한 사용자 ID 설정
+	setGID(2000) : 실행을 위한 그룹 ID 설정
+	스티키비트(1000) : 유닉스 시스템상의 파일, 디렉토리에 설정되는 접근권한을 나타내는 플래그
+	-> 디렉토리에 설정하면 파일소유자, 디랙토리소유자, 슈퍼유저만 그 아래 파일을 변경,삭제 가능
+
+
+확장 권한 설정 
+-> 1) 심볼릭 방식
+	setuid 설정(해제) u+s(u-s)
+	setgid 설정(해제) g+s(g-s)
+	sticky bit설정(해제) o+t(o-t)
+
+	
+
+
+1)  rwx 기본권한 읽기, 쓰기 , 실행
+2) 확장권한 setuid, setgid, sticky
+	u+s 4000 4755 4644
+	g+s 2000
+	o+s 1000
+3) ACL(access control List) : 특정한 사용자 / 그룹에게 권한부여 할떄 
+	ls - l 로 확인 가능 . (없음) + (있음) 
+	getfacl :
+	setfacl :
+
+setfacl 문법 : setfacl 옵션 entry:name:perms 파일명
+	entry : u(user),g(group),o(other),d(default)
+		u:user01:rwx
+		g:group01:r-x
+		d:u:user02:rwx
+		d:g:group02:r-x
+		d:m:r-x
+
+/tmp/dir_adim - ACL : user06 rwx 권한부여
+
+/tmp/dir_admin 하위 디렉토리를 생성하더라도 user06 에게 상속하여 권한부여하기 
+	#setfacl d:u:user06:rwx dir_admin 
+	
+
+mask 확인 setfacl -m m:rwx dir_admin/y
+
+옵션	-m : 수정
+	-R : 하위디첵토리 까지 적용
+	-x : 특정한 u,g 권한 제거
+	-b : 지정한 file,directory 모든 권한 제거
+	-k : default ACL 삭제
+
+
+setfacl -b -R dir_admin
+setfacl -k -R dir_admin
+ls -ld dir_admin
+ls -l dir_admin 
+
+3. 작업 스케쥴링
+	일회성 작업 (한번 실행후 삭제됨) at(데몬:atd)
+	주기적 작업 (일정한 시간에 반복) cron(데몬:crond)
+
+- at
+at : at[옵션] time-spec 
+
+
+yum install -y at
+
+at now +5min // 현재 시간 기준으로 5분뒤 실행
+at> ps -ef > ~/pslist // 실행될 명령어
+ctrl+d 로 나와서 atq로 확인
+
+ 
+at 070120 월 일 년
+
+#apt 16:00 (24시 기준)
+#at 4:00 PM (am pm) 
+#at 16:00 Jul 01 2020
+#at 070120 월일년
+#at 20-07-01 년-월-일
+#at 일.월.년
+#atq (작업 목록) 큐 52개 -> /var/spool/at/임의이름파일 
+
+- cron
+
+분 시 일 월 요 명령어 
+-> cron은 and 조건임~
+
+* : 매분 , 매시, 매일, 매월, 매주 
+/: 주기 ex) */5 -> 5분마다, 5시간마다, 5일마다
+-: ex) 1-3 : 오전 1시부터 오전 3시까지 해당 시간이
+, : 범위를 지정할수 없을떄 ex) 8,17 : 오전 8시와 7시에 
+
+ crontab -e 
+
+기억이 잘 안날떙 vim cat /etc/crontab 
+
+anacron : 예약 작업이 실행되어야 할떄 시스템을 사용할수 없으면 해당 작업을 기억해뒀다 시스템이 정상작동 할 떄 
+일정시간 이후 작업을 진행 
+
+
+
+----------------------------------------------------------
+
+
+usradd -D : 사용자 생성시 기본설정 확인
+(/etc/default/usradd) 
+변경하기 : #useradd -D -b [디렉토리명]
+
+사용자 생성시 로그인쉘 변경 옵션 
+useradd -s 
+
+소유자 소유그룹 변경 : chown [사용자명]:[그룹명]
+
+하위디렉토리 default ACL 권한 설정 
+: setfacl d:[u,g,o]:[file,dir]:[rwx] [파일,디렉토리]
+
+ACL 재귀적 사용(디렉토리를 포함한 하위 파일 ACL 적용)
+EX) stfacl -R -m Entry:NAME:PERMS File-name
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

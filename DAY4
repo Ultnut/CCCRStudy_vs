@@ -1,0 +1,190 @@
+GO, PYTHON 
+
+- init, systemd 차이?
+
+시스템레벨(RUN LEVEL)
+- 유닉스, 
+	정상적이면 1~3레벨까지 정상적으로 올라감
+	5 : power off
+	6 : reboot
+- 리눅스
+	5 : Xwindow
+
+swaper 생성
+0번 프로세스 ? :pid : init
+
+
+부팅프로세스 제어 , control = systemd 
+ 
+systemd는 리눅스의 철학(simple)에 맞지 않게 많은 기능을 가지고 있다..
+
+
+
+-------------------------------------------------------------------------
+
+
+systemd
+	런레벨 사용 x
+	시스템을 관리할떄 system Unit 사용
+	init는 절차적 처리로 인한 의존성 문제 발생 - 직렬처리방식, 속도가 느림
+	systemd는 병렬처리 방식 sys
+	
+	
+# ll /etc/systemd 
+	- target 설정 파일 -> run 스크립트 대체 
+	- 관련 설정파일들이 링크되어 사용되고 있음 
+
+target mode 
+
+single user mode :  싱글모드(기존런레벨1) : 장애처리시 , 다른 사용자들의 접속을 막음
+multi user mode : 
+
+------------------------------------------------------------------------
+
+system syspend ( 시스템 정리 ) 과 하이버네이션 차이는 ?? -- 숙제 
+
+
+가상메모리 - 스와핑 , 페이징 차이 
+
+사용하는 이유?
+
+메모리 덤프 
+
+----------------------------------------------------------------------------
+
+systemctl restart reload 차이는?
+
+kill pid -> 
+#kill -l
+
+-15 : TERM 
+-9 :프로세스 종료 
+-> 정지(stop) 와 중지(rollback) 차이 
+-> kill -9 : 비 활성화 되있는 데이터를 활성화 하지 못하고 종료 
+
+
+- systemctk 이전에는 chkonfig 사용
+
+- var, run의 차이 
+
+---------------------------------------------------------------------
+
+리눅스 부트 프로세스
+s
+run - root tmp
+
+
+로그관리데몬 - systemd-journactl
+
+
+p221) systemd 유닛파일위치 알아두기
+
+파일내용 구성 확인 -> unit, path, install
+
+메뉴얼 페이지 확인
+
+reload 설정 파일만 읽어와서 다시 실행 restart와 차이점 알아두기!
+-> 대부분 restart를 사용하는게 더 나을 수 있음
+
+
+
+who -r = runlevel
+
+
+root , sysroot 차이 
+
+#touch /.autorelabel // 쉽게 말하자면 수정을 하믄.. selinux 사용하면 레이블이 적용되는데
+chroot를 하면 레이블에 대한 모든정보가 제거된다 그래서 autorelabel를 통해 레이블을 다시 지정해줘야댐
+
+새로운 암호 root 패스워드 지정하기 : qwer1234
+
+- 타겟유닛 변경
+
+systemctl set-default *.target
+
+시스템을 재부팅 하지 않고 타겟 유닛 변경
+
+systemctl isolate *.target
+
+
+------------------------------------------------------------
+
+vmware랑 버츄얼박스 차이는..?
+SNAT , DNAT
+
+vmware 15.x pro 설치 -- 숙
+(network 구성) 
+vmnat.exe
+
+NAT (Network Address Translation) : 네트워크 주소 변환 장비가 아니라 기능, 프로그램, 사설IP로는 외부와 연결 할 수 없음 외부와 연결할 수 있는 IP는 오직 인터넷 IP 주소 관리 기관에서 발급한 공인(Public)IP주소!
+그래서 NAT를 통해 사설 IP주소와 공인IP주소를 상호 변환 해줄 수 있다.
+인터넷 공유기는 허브/스위치 역활도 하면서 동시에 NAT기능을 탑재해서 하나의 인터넷 회선으로 다수의 컴퓨터에서 동시에 인터넷을 사용할 수 있음 
+
+공유기는 DHCP 서버 기능도 내장되있음
+
+
+- vmware
+	
+	VMWARE는 NAT라우터를 자체적으로 내장하여 내부사설망으로 구성된 가상 머신들이 외부와 통신이 가능
+	브릿지는 hostpc 설정에 있음...
+	
+
+Host-only : HOST OS까지만 통신을 하고 외와 통신이 안됨 // 폐쇠망
+NAT: HOST PC를 통해 외부와 통신이 가능, 다른 PC에서 해당 VM으로 접속못함 
+Bridge : 호스트 PC의 라우터에서 직접 네트워크를 할당받아서 사용(가지치기, 뿌락치..?) // 다이렉트
+
+
+- 버츄얼박스 
+
+VMWARE와 가장 큰 차이점 :
+
+버츄얼박스 NAT 는 가상머신 한개당 NAT공유기 1개.. 그래서 NAT NETWORK가 따로 있다..
+내부네트워크 : 인터넷과 연결된 호스트 네트워크는 연결이 안되지만 vm네트워크끼리 통신가능
+
+
+NAT : 게스트 OS 내부에서도 인터넷을 사용할 수 있음 (VMWARE와 다른점 알기)  
+VMWARE와 다르게 내부 게스트OS끼리 연결되지 않음 -> 각각 독립적 네트워크고 DHCP를 사용할 경우 
+동일한 IP를 할당받아 사용하게 됨 VMWARE 처럼 하나의 네트워크 내에서 인터넷은 가능, BUT 내부머신끼리 연결 지원 X
+
+Bridged : 호스트 네트워크를 이용하여 브리지 네트워크를 구성 공인IP를 여러개 부여하여 서비스 가능 
+,외부 게이트웨이를 이용하여 인터넷을 자유롭게 사용 가능 임의의 네트워크 구성가능 (EX.내부망, 외부망을 나눔)
+
+INternal Networking : 외부와 차단되어 있음, 오직 내부 vboxnet0으로 격리된 네트워크로 동작 
+호스트pc와 분리되어 있어 인터넷과 연결 지원x
+
+Host Only : 내부 네트워크와 비슷하지만 호스트 pc와 연결 지원
+
+
+NAT Network : vmware와 nat 네트워크와 비슷하다.
+
+
+
+--------------------------------------------------------------
+
+VMWARE , VIRTUAL BOX 
+
+
+--참고자료
+https://blog.solaris.co.kr/263
+https://blog.solaris.co.kr/372
+
+http://blog.naver.com/PostView.nhn?blogId=nahejae533&logNo=221082116166&parentCategoryNo=&categoryNo=92&viewDate=&isShowPopularPosts=false&from=postView
+
+
+
+
+
+
+
+
+
+
+
+
+
+	
+
+
+
+
+
