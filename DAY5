@@ -1,1 +1,141 @@
-asd
+로그관리 
+p.248 
+
+로그 : 이벤트에 대한 기록 
+
+syslog -> rsyslog
+차이점 : rsyslog가 보안적으로 더 좋다. 
+
+종류 : {운영,설치,보안} 로그 
+형태 : 바이너리, 텍스트 
+형식 : file, memory(journal)
+
+저널은 바이러니 파일 헝태로 저장된다,
+db형태를 뜀.
+
+- 리눅스 로그는 rsylog, system-journald 두 데몬에 의해 관리됨
+- 시스템 이벤트 발생시 모두 system-journald로 전달됨
+- journal 데몬은 /run/log/journal 디렉토리에 모든 로그를 저장한 파일인 저널에 데이터 파일 생성
+- logrotate 는 로그를 순환시켜주는 유틸리티 -> 로그를 순환시키지 않으면 메모리가 풀!(rcylog)
+
+ 
+
+/run ->(tmpfs) 휘발성	
+
+spool , log 차이 
+
+wtmp -> 마지막 로그인된 사용자
+who -> utmp 현재 사용중인 사용자
+
+dd = /dev/zero(논리적 디바이스) ?
+
+rhel7 기준 로그 : systemd-journal, rsyslog 
+
+
+rsylog 테스트
+
+1. vi /etc/rsyslog.conf
+auth,authpriv.crit	/var/log/securetest
+systemctl restart rsyslog.service
+logger -p auth.crit "Hello"
+logger -p authpriv.crit "Hello"
+cat /var/log/securetest
+
+2. rsyslog를 수정(추가)해서 cron에 대한 로그가 error의 우선순위에서만 /var/log/crontest 파일에 남도록 설정하고 /var/log/crontest에서 "auth.error" 메세지를 확인하시오
+
+3. cron 로그를 제외하고 모든 기능(Facility)의 alter 이상의 로그를 /var/log/alert.log로 기록(저장) 하도록 설정하고, "alert.alert" 메세지를 확인하시오 
+
+
+
+----------------------------------
+
+패키지관리 p.298
+
+패키지 관리자를 쓰는 이유? : 편하당.
+
+소스컴파일(바이너리 설치)과 패키지관리자의 차이? 
+-> 소스컴파일은 자기가 원하는 위치에 설치가능
+
+
+rpm -Uvh // rpam 패키지 설치 
+
+
+yum : rpm 의 의존성 문제를 해결하기 위해 나옴
+
+localinstall = rpm과 비슷하지만 의존성 문제해결 
+
+cat /etc/*-release 리눅스 버전확인
+
+yum rpeository 구성하고 정리 -- 숙제
+
+팁. ip a 쳤을때 MAC 정보는 VM 네트워크 설정의 고급탭이나 CMD 명령어로 확인가능하다.
+
+게이트웨이 라우트 찾는 명령어 ip route
+
+네트워크 설정 명령어
+nmcli
+nmtui
+nmgui
+
+con-name , ifname 차이는?
+
+
+ifname: 실제 디바이스 장치(인터페이스명)의 이름
+con-name : 연결될떄 장치의 이름(가명?) 헷갈린다..
+
+
+10.0.2.2
+192.168.56.0/24
+
+netstate -rn 게이트웨이 확인 
+
+ss -ta 
+
+GUI도 서버 클라이언트개념? -> X윈도우 본사에서 헀던거 생각해보장
+
+3핸드쉐이킹 , 포트포워딩 --> 숙 
+
+
+--------------------------------------------------------------
+
+
+
+-yum에서 패키지를 업데이트 할 때 두가지 명령어를 사용할 수 있다. update와 upgrade. update는 패키지에 대한 update만 수행한다. 반면 upgrade는 패키지 update 과정에서 불 필요 하다고 생각되는 패키지를 삭제한다. 따라서 update가 시스템에 더 안정적으로 판단되며 구글에서 보이는 많은 글들도 update를 기반으로 한다.
+
+-fastmirror 는 yum의 플러그인으로 repo 설정에 한개이상의 mirror 있을떄 속도가 가장 빠른 mirror 부터 접속할수 있도록 해줌
+
+
+
+-------------------------------
+
+시험범위 : 버츄얼박스,vm 네트워크 정리 / systemd, boot, log, 패키지, 네트워크 
+
+
+
+yum repository 잡기
+
+방법1)
+1. 설정파일 위치 : /etc/yum.repos.d/
+2. .repo 구성
+	[test.repo] // 레포리스트 파일 id
+	name=	// yum 저장소 이름
+	mirrorlist= // 미러서버목록, 패스트 미러 플러그인을 통해 여러개의 미러사이트가 있을떄 가장 빠른 미러부터 접속 할수 있도록 도와줌
+	baseurl= // yum 저장소 주소 지정
+	enabled=    // 1, 0 1일떄 레포지토리 활성화 0이면 비활성화 	
+	gpgpcheck= // gpgpckey 사용 여부
+	gpgkey= // 패키지를 다운로드 받기 위한 키값 
+
+#yum repolist // yum 저장소 확인 명령어 
+
+방법2)
+#yum install yum-utils 패키지 설치
+yum-config-manager --add-repo="url" 
+
+
+
+
+
+
+
+
+
