@@ -4,13 +4,17 @@
 
 윈도우 비밀번호 : qwer1234
 
+2020/07/20 ~ 24(수) 합본 + NetworkBsic 
+
 https://drive.google.com/drive/folders/18QEGw_4igPHWuvFuQkdp8awuXVwIeeyR
 
 
 ## 네트워크 복습 
 
 - 라우터는 3계층 장비
-  
+
+
+
 
 
 실습1)
@@ -81,3 +85,13 @@ WildcardMask : 네트워크 아이디를 0으로 표기 호스트 아이디는 1
 
 
 https://www.inflearn.com/course/%EC%A0%9C%EC%A3%BC%EC%BD%94%EB%94%A9-%EC%9B%B9%EA%B0%9C%EB%B0%9C-30%EB%B6%84%EC%9A%94%EC%95%BD
+
+### vlan : virtual Local Area Network
+: 물리적 배치와 상관없이 논리적으로 lAN 구성 가능
+;
+
+default vlan -> 원래부터 나올떄부터 있던겅...
+
+swichprot trunk all
+
+trunkport

@@ -28,7 +28,7 @@
 
 - 전송방식, 정확 TCP, 신속 UDP
 - 포트를 사용해 통신
-- L4 스위치
+- L4 스위치 - 로드밸런싱 
 
 ### L3)
 
@@ -117,7 +117,7 @@
 
 - 요약 : access 는 트렁킹 사용을 막고 항상 access 포트로 사용되게 한다. trunk는 항상 트렁킹 포트로 사용한다. 
 
-https://onecellboy.tistory.com/278
+
 
 
 + valn 200번에 왜 디폴트 포트인 vlan 1번의 포트들을 넣는 이유 -> 트렁크 포트 사용 못하도록 하기 위해성!
@@ -126,3 +126,10 @@ https://onecellboy.tistory.com/278
 
 
 
+-----------------------------------
+참고링크
+------------------------------------
+
+https://onecellboy.tistory.com/278
+
+https://jhnyang.tistory.com/194
