@@ -1,14 +1,7 @@
 ## 과제 문서제출있쑴
 ------------------------
 
-
-application
-----------------
-middleware
----------------
-OS
-----------------
-HW, Network
+![서비스구조](https://www.researchgate.net/publication/273874993/figure/fig15/AS:325671223087107@1454657478043/Location-of-the-middleware-layer.png)
 
 ## 1. 클라우드 종류 : 
  - laas 
