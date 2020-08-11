@@ -43,5 +43,22 @@ $ docker tag centos:latest mycentos:latest
     ```
     $ docker import export.tar nobreak/docker:import
     ```
+## 도커 파일
+
+- 도커는 도커파일을 사용하여 이미지를 제작 할 수 있음
+- 텍스트 문서이며 지시어를 사용하여 이미지를 재작 할 수 있다
+- 코드형태도 되어 있어 버전관리에 용이하고 이미지 기능을 파악하기 쉬움
+  -  bulid 예시
+    ```
+        $ docker build -t nobreak/docker:centosweb
+    ```
+## 도커 로컬 레포지토리 
+- 도커가 기본적으로 사용하는 이미지 저장소는 도커허브
+- 도커허브는 퍼블릭 이미지 저장소로 기업이 자체적으로 이미지를 보관하려면 프라이빗 이미지 저장소를 구성해야 한다.
+- 
+
+## Docker Compose
+
+-   Harbor 
 
 
