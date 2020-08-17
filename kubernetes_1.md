@@ -23,8 +23,11 @@
 
 
 
-## 쿠버네티스란
--  컨테이너 기반 클러스터 환경을 제공하며 워크로드를 위해 컴퓨팅 및 스토리지 인프라를 오케스트레이션 한다.
+## 쿠버네티스란(k8s)
+
+![kubeinfra](https://t1.daumcdn.net/cfile/tistory/994E433E5AFEF4A222)
+
+-  컨테이너 기반컴퓨팅 및 스토리지 인프라를 오케스트레이션 한다.
 -  Iaas 의 유연함을 더해주고 Paas 를 제공 
 -  제공하는 기능 : 컨테이너 플랫폼, 마이크로 서비스 플랫폼, 이식성 있는 클라우드 플랫폼
 -  쿠버네티스는 하드웨어 레벨이 아니라 컨테이너 레벨에서 운영된다
@@ -68,17 +71,74 @@
 
 
 
-  ** 볼륨사용 시나리오 **
+###  ** 볼륨사용 시나리오 **
 ![volume](https://t1.daumcdn.net/cfile/tistory/99FC343C5B02D9C810)
     -   웹서버를 배포하는 Pod가 있을떄 웹서비스를 서비스하는 Web server 컨테이너, 컨텐츠의 내용 (/htdocs)를 업데이트하고 관리하는 Content mgmt 컨테이너, 그리고 로그를 관리하는 Logger 컨테이너
   ![volume2](https://t1.daumcdn.net/cfile/tistory/997CE9435B02D9C824)
     - htdocs와 log 볼륨 각각 생성후 htdocs는 webserver와 contents management 컨테이너에 마운트해서 공유하고 log 볼륨은 Looger와 webserver 컨테이너와 공유하도록 하기  
 
 
+### Service 
+- Pod와 볼륨을 이용하여 컨테이너를 정의한 후 Pod를 서비스로 제공할떄 일반적인 분산환경에서 하나의 Pod로 서비스 하는 경우는 드물다, 
+- 여러개의 Pod를 서비스하면서 이를 로드배런서를 이용해서 하나의 IP와 포트로 묶어 서비스 제공
+- Pod의 경우 동적으로 생성, 장애 발생시 자동으로 리스타트 되기떄문에 로드밸런서에 ip주소를 이용하는건 어렵다. 그래서 라벨(label)과 라벨 셀렉터(label selector) 사용
+- 서비스 정의할떄 어떤 pod를 서비스로 묶을지 정의하는데 이걸 label selector라고 하는데 각 메타데이터 정보부분에 정의할수 있음
+- 서비스는 라벨 셀렉터에서 특정 라벨을 가지고 있는 pod만 선택하여 서비스에 묶음
+  ![service](https://t1.daumcdn.net/cfile/tistory/99B11D475B02D9C802)
+    ```
+    kind: Service
+      apiVersion: v1
+  metadata:
+  name: my-service
+  spec:
+  selector:
+    app: myapp
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 9376
+    ```
+    -  리소스의 종류 Service -> kind: Service, api버전 v1 -> apiVersion: v1, 메타데이터 서비스의 이름을 my-service로 지정, spec 부분에서 서비스에 대한 스펙 정의 selector에서 app:myapp인 Pod만 선택해 서비스 제공, 포트는 80번 tcp를 사용하되 80번포트의 요청을 컨테이너 9376 포트로 연결해서  서비스를 제공
+
+### Name space
+- 네임 스페이스는 한 쿠버네티스 클러스터내의 논리적인 분리단위
+- Pod, Service 등의 네임 스페이스 별로 생성이나 관리 될 수 있고 사용자 권한 역시 네임스페이스별로 나눠서 부여할 수 있다.
+- 즉 하나의 클러스터내에 개발/운영/테스트 환경이 있을떄 클러스터를 개발/운영/테스트 3개의 네임 스페이스로 나눠서 운영할 수 있다. 
+- 네임스페이스로 할수 있는것
+  - 사용자별로 네임스페이스별 ACL 운영
+  - 네임스페이스 별로 리소스 할당량 지정 가능
+  - 네임스페이스 별로 리소스(Pod, Service) 관리 가능
+- 주의! 네임스페이스는 논리적 분리단위이므로 물리적이나 기타 장치를 통 환경을 분리한게 아니라서 다른 네임 스페이스간 Pod 라도 서로 통신 가능(물론 네트워크 정책을 통해 통신을 막을수 있다)
+- 높은 수준의 분리정책을 원할땐 쿠버네티스 클러스터 자체를 분리해야한다.
+![NameSpace](https://t1.daumcdn.net/cfile/tistory/999A364D5B02D9C834)
+
+### 라벨
+- 라벨은 쿠버네티스 리소스를 선택하는데 사용됨 각 리소스는 라벨을 가질수 있고 라벨 검색 조건에 따라 특정 라벨을 가질수 있는 리소스 선택 가능
+- 이렇게 라벨을 선택하여 특정 리소스에 배포하거나 업데이트 가능 
+- 라벨로 선택된 특정 리소스만 Service에 연결하거나 네트워크 접근권한 부여등 가능
+```
+    kind: Service
+apiVersion: v1
+metadata:
+  name: my-service
+spec:
+  selector:
+    app: myapp
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 9376
+```
+## 컨트롤러
+- 4개의 기본 오브젝트로, 어플리케이션을 설정하고 배포할떄 이를 좀더 편리하게 관리하기 위함
+- 컨트롤러는 Replication Controller, Replicaion Set, DeamonSet, Job, StatefulSet, Deployment 등이 있음
+
+1. Replication  Controller
+- Pod를 관리해주는 역활을 하는데 저장된 숫자로 Pod를 기동시키고 관리하는 역활 
 
 
 ## 명령어
 
-
+![보노보노](/home/student/다운로드/bonono.jpeg)
 
 
