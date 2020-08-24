@@ -1,0 +1,103 @@
+parted 
+
+parted -s /dev/sdc mklabel msdos
+parted -s /dev/sdc mkpart primary 0% 100%
+				extended
+parted -s /dev/sdc mklabel gpt
+parted -s /dev/sdc mkpart [name] [filesystem] 0% 100%
+예) parted -s /dev/sdc mkpart data1 xfs 0% 100%
+예) parted -s /dev/sdc mkpart data1 0% 100%
+
+----------------------------------------------------
+
+SWAP
+
+
+1.생성방법 
+
+1) 파티셔닝
+
+mkswap 
+
+swapons -s 
+
+swapon /dec/sd*
+
+2) 스왑파일 생성
+
+---------------------------------------------------
+
+LVM 
+-> 스토리지의 사이즈를 유언하게 관리할 수 있음
+
+- 생성순서
+파티션 생성 -> pv 생성 -> vg 생성 -> lvm 생성 -> 파일시스템 포맷 -> 마운트
+
+vgcreate -s : vg 생성이 사이즈 조절
+
+lvcreate -l , -L 차이는 ? 
+	-L : 사이즈 지정
+	-l : PE 개수 지정
+
+이게 좀 헷갈리넹
+
+mount -t ?
+
+vg_reduce [vg] [pv] vg 용량 줄이기 
+단 해당 pv는 사용중이면 안된다. 
+
+
+lvextend -r 옵션을 주면 용량확장시 따로 파일시스템 resize를 해준다 
+따로 xfs_growfs or resize2fs 안해줘도 됨 
+
+- 파일시스템 축소는 ext4 파일시스템만 가능
+순서 : umount -> 파일시스템 축소 -> lvm 축소 
+
+lvreduce 연습해보기
+
+-----------------------------------
+
+씬 프로비저닝 구성(p.190)
+	물리불륨 -> 볼륨그룹 -> 씬풀(thin pool) -> 논리볼륨(씬프로비저닝)
+	
+	lvcreate -T -L 20G vg_test/thinpool
+		-T 씬풀 생성
+	lvs 또는 lvdisplay
+	lvcreate -T -V 10T -n thin_lv vg_test/thinpool
+		씬풀 vg_test/thinpool 에서 1T 사이즈로 (-T thin, -V 가상사이즈) LVM 생성(이름 lvm_thin)
+		
+		-T 씬프로비저닝
+		-V 사이즈, 가상으로 큰 사이즈 지정
+		-n 이름, 생성할 논리볼륨 이름 지정
+	lvs 또는 lvdisplay 확인		
+--------------------------------
+
+RAID : 성능향상 및 고가용성을 위해 여러개의 디스크를 묶어서 사용하는 기술
+
+	0 실습 :(1G * 6개 = 6G) lvcreate -n stripte_lv -L 6G -i 6 vg_test
+	1 실습 :(1 원본 disk -> 복제 5개, -L 6G
+			원본 disk 1G 사용 -> 복제 5번 
+			lvcreate -n lv_mirror -L 1G -m 5 vg_test
+	5: 실습 : --type raid5 -i 5 -L 5G -n [이름]
+		-i striped disk 개수에서 -1(패리티) 
+	6: 실습 : --type raid5 -i 4 -L 5G -n [이름]
+		-i striped disk 개수에서 -2(패리티)
+	10 실습 : --type raid10
+		mirror 와 stripe를 동시에 가능 (현재 OS m 1만 지원)
+		mirror를 1개 전체 6개 disk를 사용하기 위해서는 
+		disk 3개를 stripe 하고 전체를 mirror 1하면 6개 disk 사용가능
+		--type -m 1 -i 3 -L 3G -n 논리볼륨이름
+		-- stripe 3임으로 3G를 지정하면 pv마다 1G씩 사용
+ 
+
+
+
+
+
+
+pvdisplay -C 
+
+
+
+
+
