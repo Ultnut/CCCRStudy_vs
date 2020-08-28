@@ -15,3 +15,10 @@ https://jink1982.tistory.com/48
 https://wikidocs.net/29981
 vim 치환
 :%s/바꿀문자/바꾸자하는문자/ig
+
+kyuhwan2015@gmail.com
+
+1. 취약점 진단 스크립트
+2. 스크립트 배포/실행/취합도구 (앤서블 플레이북)
+3. 샘플 데이터 / ELK 설정 ( logstas 필터링 설정)
+
